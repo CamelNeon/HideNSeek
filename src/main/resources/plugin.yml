@@ -1,0 +1,5 @@
+name: MauricePlugin
+version: '${version}'
+main: org.example.maurice.mauriceplugin.MauricePlugin
+api-version: '1.18'
+
