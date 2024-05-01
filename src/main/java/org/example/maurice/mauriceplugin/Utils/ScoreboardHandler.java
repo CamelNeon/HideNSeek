@@ -23,10 +23,10 @@ public class ScoreboardHandler extends FastBoard{
                 text(""),
                 text("Vous etes", GREEN),
                 text(type.toString(), GREEN),
-                text(""),
+                text( ""),
                 text("La recherche", RED),
                 text("commence dans", RED),
-                text(SettingsEnum.TIME_TO_HIDE.getValue() / 20).append(text(" sec")).color(RED)
+                text(SettingsHandler.getTimeToHide() / 20).append(text(" sec")).color(RED)
         );
     }
 

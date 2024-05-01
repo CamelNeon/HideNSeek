@@ -6,12 +6,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.example.maurice.mauriceplugin.HideNSeek;
 
-import java.util.logging.Logger;
-
 public class HitListener implements Listener{
     private static boolean PLAYING = false;
     private static String SEEKER_ID;
-    private static HideNSeek game;
+    private static HideNSeek GAME;
 
     @EventHandler
     public void entityDamage(EntityDamageByEntityEvent event){
@@ -20,11 +18,10 @@ public class HitListener implements Listener{
                 event.setCancelled(true);
             }
         }
-        if (!PLAYING || game == null || SEEKER_ID == null){return;}
+        if (!PLAYING || GAME == null || SEEKER_ID == null){return;}
         if (event.getDamager() instanceof Player && ((Player) event.getDamager()).identity().uuid().toString().equals(SEEKER_ID)){
             if (event.getEntity() instanceof Player){
-                game.playerFound((Player)event.getEntity());
-                Logger.getLogger("UUIDTEST").info("cest pas bien de frapper les uatres :(:(:(:(:(:(");
+                GAME.playerFound((Player)event.getEntity());
             }
         }
     }
@@ -37,7 +34,7 @@ public class HitListener implements Listener{
         SEEKER_ID = seekerId;
     }
 
-    public static void setGame(HideNSeek game) {
-        HitListener.game = game;
+    public static void setGAME(HideNSeek game) {
+        GAME = game;
     }
 }

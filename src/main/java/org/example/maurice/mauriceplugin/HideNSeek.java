@@ -4,17 +4,19 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.example.maurice.mauriceplugin.Listener.ClickListener;
 import org.example.maurice.mauriceplugin.Listener.HitListener;
 import org.example.maurice.mauriceplugin.Utils.*;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
@@ -67,6 +69,10 @@ public class HideNSeek {
         Player seekerPlayer = Bukkit.getPlayer(seeker.getName());
         String seekerID = Objects.requireNonNull(Bukkit.getPlayer(seeker.getName())).getUniqueId().toString();
 
+        for (CommandSender p : listPlayer()){
+            Objects.requireNonNull(Bukkit.getPlayer(p.getName())).getInventory().clear();
+        }
+
         if (seekerPlayer == null){
             MsgSender.batchSend(listPlayer(), text("Une erreur inattendue est survenue, le chercheur est null :(").color(CustomColor.STRONG_RED.getVal()));
             return;
@@ -74,19 +80,30 @@ public class HideNSeek {
 
         seekerPlayer.setGameMode(GameMode.SURVIVAL);
 
-        seekerPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, SettingsEnum.TIME_TO_HIDE.getValue(), 10, false, false, false));
-        seekerPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, SettingsEnum.TIME_TO_HIDE.getValue(), 10, false, false, false));
+        seekerPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, SettingsHandler.getTimeToHide(), 10, false, false, false));
+        seekerPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, SettingsHandler.getTimeToHide(), 10, false, false, false));
+        seekerPlayer.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, SettingsHandler.getTimeToHide(), 128, false, false, false));
         HideNSeek hs = this;
+
+        List<Player> hiders = players.keySet().stream().filter(cs -> !cs.equals(seeker)).map(cs -> Bukkit.getPlayer(cs.getName())).toList();
+        List<String> hidersID = hiders.stream().map(p -> p.getUniqueId().toString()).toList();
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(MauricePlugin.getInstance(), () -> {
             HitListener.setSeekerId(seekerID);
-            HitListener.setGame(hs);
+            HitListener.setGAME(hs);
             HitListener.setPLAYING(true);
-        }, SettingsEnum.TIME_TO_HIDE.getValue());
+            ClickListener.setPLAYING(true);
+            ClickListener.setHidersId(hidersID);
+            ClickListener.setGAME(hs);
+        }, SettingsHandler.getTimeToHide());
 
-        List<Player> hiders = players.keySet().stream().filter(cs -> !cs.equals(seeker)).map(cs -> Bukkit.getPlayer(cs.getName())).toList();
+        seekerPlayer.teleport(SettingsHandler.getStartPos());
         for (Player h : hiders){
+            h.teleport(SettingsHandler.getStartPos());
             Objects.requireNonNull(Bukkit.getPlayer(h.getName())).setGameMode(GameMode.SURVIVAL);
+            ItemStack tauntItem = new ItemStack(Material.SLIME_BALL, 1);
+            tauntItem.lore(List.of(text("Use this item to taunt!")));
+            h.getInventory().addItem(tauntItem);
             MsgSender.send(h, Component.text("Ne laisse pas ").append(seeker.name().color(CustomColor.LIGHT_RED.getVal())).append(Component.text(" te trouver!")));
             numberOfHider++;
         }
@@ -97,8 +114,14 @@ public class HideNSeek {
     public void stopGame(PlayerType winner){
         HitListener.setPLAYING(false);
         HitListener.setSeekerId(null);
-        HitListener.setGame(null);
+        HitListener.setGAME(null);
+        ClickListener.setPLAYING(false);
+        ClickListener.setHidersId(null);
+        ClickListener.setGAME(null);
         gameStopped = true;
+        for (CommandSender p : listPlayer()){
+            Objects.requireNonNull(Bukkit.getPlayer(p.getName())).getInventory().clear();
+        }
         if (task != null){
             task.cancel();
         }
@@ -137,7 +160,7 @@ public class HideNSeek {
     }
 
     private void setScoreboards(Player seeker, List<Player> hiders){
-        countdownValue = SettingsEnum.TIME_TO_HIDE.getValue()/20;
+        countdownValue = SettingsHandler.getTimeToHide()/20;
         scoreboards.put(seeker, new ScoreboardHandler(seeker, PlayerType.SEEKER));
         for (Player h : hiders){
             scoreboards.put(h, new ScoreboardHandler(h, PlayerType.HIDER));
@@ -184,7 +207,7 @@ public class HideNSeek {
     }
 
     private void searchStart(){
-        countdownValue = SettingsEnum.TIME_TO_SEARCH.getValue()/20;
+        countdownValue = SettingsHandler.getTimeToSearch()/20;
         for (Map.Entry<CommandSender, ScoreboardHandler> sb : scoreboards.entrySet()) {
             sb.getValue().updateLine(4, text("Il reste", RED));
             if (sb.getValue().getType().equals(PlayerType.SEEKER)) {
