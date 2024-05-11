@@ -1,5 +1,6 @@
 package org.example.maurice.mauriceplugin.Command;
 
+import com.mojang.brigadier.CommandDispatcher;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,8 +13,15 @@ import org.example.maurice.mauriceplugin.MsgSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
+
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public abstract class CommandBase extends BukkitCommand implements CommandExecutor {
     private final int minArgument;
@@ -33,15 +41,15 @@ public abstract class CommandBase extends BukkitCommand implements CommandExecut
     }
 
     public CommandBase(String command, int minArgument, int maxArgument){
-        this(command, minArgument, maxArgument, false);
+        this(command, minArgument, maxArgument, false, "", "", new ArrayList<String>());
     }
 
     public CommandBase(String command, int requiredArguments, boolean playerOnly) {
-        this(command, requiredArguments, requiredArguments, playerOnly);
+        this(command, requiredArguments, requiredArguments, playerOnly, "", "", new ArrayList<String>());
     }
 
-    public CommandBase(String command, int minArgument, int maxArgument, boolean playerOnly) {
-        super(command);
+    public CommandBase(String command, int minArgument, int maxArgument, boolean playerOnly, String desc, String usage, List<String> alias) {
+        super(command, desc, usage, alias);
 
         this.minArgument = minArgument;
         this.maxArgument = maxArgument;

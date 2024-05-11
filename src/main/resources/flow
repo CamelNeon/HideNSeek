@@ -1,0 +1,22 @@
+Créé des settings :
+    /HnS setup
+    /HnS load ConfigName
+    /HnS configList
+
+Créé une partie :
+    /Hns create ConfigName
+    /HnS accept|play
+    /Hns refuse
+    /Hns start
+
+Stopper une partie créé n'importe quand :
+    /HnS stop|cancel
+
+Changer les settings avant de start :
+    /HnS settings get SettingsName
+    /HnS settings set SettingsName Value
+    /HnS settings save
+
+Autre :
+    /HnS list
+    /HnS info

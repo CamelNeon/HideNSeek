@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class SettingsDTO implements Serializable {
+public class Settings implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -17,7 +17,7 @@ public class SettingsDTO implements Serializable {
     int time_to_search;
     String startPos;
 
-    public SettingsDTO(String name, int time_to_hide, int time_to_search, Location startPos){
+    public Settings(String name, int time_to_hide, int time_to_search, Location startPos){
         this.name = name;
         this.time_to_hide = time_to_hide;
         this.time_to_search = time_to_search;
@@ -54,5 +54,41 @@ public class SettingsDTO implements Serializable {
         UUID u = UUID.fromString(parts[3]);
         World w = Bukkit.getServer().getWorld(u);
         return new Location(w, x, y, z); //can return null if the world no longer exists
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getTime_to_hide() {
+        return time_to_hide;
+    }
+
+    public void setTime_to_hide(int time_to_hide) {
+        this.time_to_hide = time_to_hide;
+    }
+
+    public int getTime_to_search() {
+        return time_to_search;
+    }
+
+    public void setTime_to_search(int time_to_search) {
+        this.time_to_search = time_to_search;
+    }
+
+    public String getStartPos() {
+        return startPos;
+    }
+
+    public void setStartPos(String startPos) {
+        this.startPos = startPos;
+    }
+
+    public void setStartPos(Location startPos) {
+        this.startPos = getSerializedLocation(startPos);
+    }
+
+    public void save(){
+        SettingsHandler.saveToFile(this);
     }
 }

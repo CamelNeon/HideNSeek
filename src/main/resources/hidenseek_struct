@@ -1,0 +1,22 @@
+hidenseek:
+   setup:
+        <name>;
+        <time_to_hide>;
+        <time_to_search>!
+    create:
+        <name>!
+    play;
+    info;
+    load:
+        <name>!
+    save;
+    cancel;
+    stop;
+    tools;
+    refuse;
+    settings:
+        get:
+            <setting-name>!
+        set:
+            <setting-name>:
+                <value>!

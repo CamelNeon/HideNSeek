@@ -11,7 +11,7 @@ public class ScoreboardHandler extends FastBoard{
     private int countdownValue;
     private final PlayerType type;
 
-    public ScoreboardHandler(Player player, PlayerType type) {
+    public ScoreboardHandler(Player player, PlayerType type, int timeToHide) {
         super(player);
         this.type = type;
 
@@ -26,7 +26,7 @@ public class ScoreboardHandler extends FastBoard{
                 text( ""),
                 text("La recherche", RED),
                 text("commence dans", RED),
-                text(SettingsHandler.getTimeToHide() / 20).append(text(" sec")).color(RED)
+                text(timeToHide / 20).append(text(" sec")).color(RED)
         );
     }
 
