@@ -27,4 +27,8 @@ public class CustomPlayer {
     public Location getSecond_pos() {
         return second_pos;
     }
+
+    public Player getPlayer() {
+        return player;
+    }
 }

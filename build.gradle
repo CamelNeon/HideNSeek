@@ -22,7 +22,8 @@ repositories {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT"
-    implementation 'com.mojang:brigadier:1.0.18'
+    compileOnly "com.github.shynixn.structureblocklib:structureblocklib-bukkit-api:2.13.0"
+    compileOnly 'me.lucko:commodore:2.2'
 }
 
 jar {

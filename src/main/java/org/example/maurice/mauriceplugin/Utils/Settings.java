@@ -6,6 +6,7 @@ import org.bukkit.World;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Settings implements Serializable {
@@ -16,6 +17,7 @@ public class Settings implements Serializable {
     int time_to_hide;
     int time_to_search;
     String startPos;
+    ArrayList<StructData> structdatas = new ArrayList<>();
 
     public Settings(String name, int time_to_hide, int time_to_search, Location startPos){
         this.name = name;
@@ -41,13 +43,13 @@ public class Settings implements Serializable {
         }
     }
 
-    public String getSerializedLocation(Location loc) { //Converts location -> String
+    public static String getSerializedLocation(Location loc) { //Converts location -> String
         return loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getWorld().getUID();
         //feel free to use something to split them other than semicolons (Don't use periods or numbers)
     }
 
-    public Location getDeserializedLocation() {//Converts String -> Location
-        String [] parts = startPos.split(";"); //If you changed the semicolon you must change it here too
+    public static Location getDeserializedLocation(String pos) {//Converts String -> Location
+        String [] parts = pos.split(";"); //If you changed the semicolon you must change it here too
         double x = Double.parseDouble(parts[0]);
         double y = Double.parseDouble(parts[1]);
         double z = Double.parseDouble(parts[2]);
@@ -90,5 +92,13 @@ public class Settings implements Serializable {
 
     public void save(){
         SettingsHandler.saveToFile(this);
+    }
+
+    public void setStruct(String name, String structPos) {
+        structdatas.add(new StructData(name, structPos));
+    }
+
+    public ArrayList<StructData> getStructPos() {
+        return structdatas;
     }
 }

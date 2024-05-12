@@ -1,0 +1,35 @@
+hidenseek {
+  create {
+    name brigadier:string single_word;
+  }
+  start;
+  setup{
+    name brigadier:string single_word{
+        time_to_hide brigadier:integer{
+            time_to_search brigadier:integer;
+        }
+    }
+  }
+  play;
+  info;
+  load {
+    name brigadier:string single_word;
+  }
+  save;
+  cancel;
+  stop;
+  tools;
+  refuse;
+  settings{
+    get{
+        setting_name brigadier:string single_word;
+    }
+    set{
+        setting_name brigadier:string single_word;
+    }
+  }
+  struct{
+    save;
+    load;
+  }
+}

@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.example.maurice.mauriceplugin.HideNSeek;
+import org.example.maurice.mauriceplugin.MauricePlugin;
 import org.example.maurice.mauriceplugin.MsgSender;
 import org.example.maurice.mauriceplugin.Utils.*;
 import org.jetbrains.annotations.NotNull;
@@ -110,6 +111,20 @@ public class HideNSeekCommand {
                     }
                     return true;
                 }
+                if (args[0].equals("struct")){
+                    if (args.length == 2 && args[1].equals( "save")){
+                        game.saveStruct(MauricePlugin.getCustomPlayer(Objects.requireNonNull(Bukkit.getPlayer(sender.getName())).getUniqueId().toString()));
+                        MsgSender.send(sender, text("Structure sauvegarde!", GREEN));
+                    }
+                    else if (args.length == 2 && args[1].equals( "load")){
+                        game.loadStruct();
+                        MsgSender.send(sender, text("Structure charge!", GREEN));
+                    }
+                    else {
+                        MsgSender.send(sender, getUsage());
+                    }
+                    return true;
+                }
                 if (args[0].equals("settings")){
                     if (game.isCreator(sender)) {
                         if (args.length >= 3 && args[1].equals("set")) {
@@ -197,21 +212,6 @@ public class HideNSeekCommand {
                 return "/hidenseek";
             }
 
-            @Override
-            public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-                StringBuilder prefix = new StringBuilder("hidenseek");
-                if (args.length != 0){
-                    for (int i = 0; i < args.length - 1; i++){
-                        if (!structMap.containsKey(prefix + args[i])){
-                            prefix.append("*");
-                        }
-                        else prefix.append(args[i]);
-                    }
-                }
-                List<String> hints = structMap.get(prefix.toString());
-                if (hints == null || hints.isEmpty()) return new ArrayList<String>();
-                return hints.stream().filter(str -> str.startsWith(args[args.length-1])).toList();
-            }
 
             public String getSettingsUsage(){
                 return "/hidenseek settings";

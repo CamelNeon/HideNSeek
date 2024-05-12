@@ -1,9 +1,9 @@
 package org.example.maurice.mauriceplugin;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.lucko.commodore.Commodore;
+import me.lucko.commodore.CommodoreProvider;
+import me.lucko.commodore.file.CommodoreFileReader;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +19,7 @@ import org.example.maurice.mauriceplugin.Listener.TestListener;
 import org.example.maurice.mauriceplugin.Utils.SettingsHandler;
 import org.example.maurice.mauriceplugin.Wrapper.CustomPlayer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -54,6 +55,10 @@ public final class MauricePlugin extends JavaPlugin {
 
     public static void addPlayer(Player player){
         customPlayerList.put(player.getUniqueId().toString(), new CustomPlayer(player));
+    }
+
+    public static CustomPlayer getCustomPlayer(String id){
+        return customPlayerList.get(id);
     }
 
     public static void setFirstPos(UUID id, Location location){

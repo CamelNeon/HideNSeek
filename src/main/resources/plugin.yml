@@ -2,4 +2,8 @@ name: MauricePlugin
 version: '${version}'
 main: org.example.maurice.mauriceplugin.MauricePlugin
 api-version: '1.18'
+libraries:
+  - com.github.shynixn.structureblocklib:structureblocklib-bukkit-api:2.13.0
+  - com.github.shynixn.structureblocklib:structureblocklib-bukkit-core:2.13.0
+  - me.lucko:commodore:2.2
 

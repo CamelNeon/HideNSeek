@@ -1,15 +1,14 @@
 package org.example.maurice.mauriceplugin;
 
+import com.github.shynixn.structureblocklib.api.bukkit.StructureBlockLibApi;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -17,8 +16,11 @@ import org.bukkit.scheduler.BukkitTask;
 import org.example.maurice.mauriceplugin.Listener.ClickListener;
 import org.example.maurice.mauriceplugin.Listener.HitListener;
 import org.example.maurice.mauriceplugin.Utils.*;
+import org.example.maurice.mauriceplugin.Wrapper.CustomPlayer;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
@@ -105,9 +107,9 @@ public class HideNSeek {
             ClickListener.setGAME(hs);
         }, settings.getTime_to_hide());
 
-        seekerPlayer.teleport(settings.getDeserializedLocation());
+        seekerPlayer.teleport(Settings.getDeserializedLocation(settings.getStartPos()));
         for (Player h : hiders){
-            h.teleport(settings.getDeserializedLocation());
+            h.teleport(Settings.getDeserializedLocation(settings.getStartPos()));
             Objects.requireNonNull(Bukkit.getPlayer(h.getName())).setGameMode(GameMode.SURVIVAL);
             ItemStack tauntItem = new ItemStack(Material.SLIME_BALL, 1);
             tauntItem.lore(List.of(text("Use this item to taunt!")));
@@ -237,6 +239,72 @@ public class HideNSeek {
             }
         }
         searchCountdownUpdate();
+    }
+
+    public void saveStruct(CustomPlayer customPlayer){
+        Plugin plugin = MauricePlugin.getInstance();
+
+        if (!customPlayer.getFirst_pos().getWorld().equals(customPlayer.getSecond_pos().getWorld())){
+            Logger.getLogger("Error").severe("The two selected position are not in the same world");
+            return;
+        }
+
+        int sizeX = Math.abs(customPlayer.getFirst_pos().getBlockX() - customPlayer.getSecond_pos().getBlockX()) +1;
+        int sizeY = Math.abs(customPlayer.getFirst_pos().getBlockY() - customPlayer.getSecond_pos().getBlockY()) +1;
+        int sizeZ = Math.abs(customPlayer.getFirst_pos().getBlockZ() - customPlayer.getSecond_pos().getBlockZ()) +1;
+
+        Logger.getLogger("iodrjg").info(String.format("sizeX : %s, sizeY : %s, sizeZ : %s", sizeX, sizeY, sizeZ));
+        int counter = 0;
+
+        Location lowerCorner = LowerCorner(customPlayer.getFirst_pos(), customPlayer.getSecond_pos());
+        for (int y = 0; y <= (sizeY-1) /32; y++){
+            for (int z = 0; z <= (sizeZ-1) /32; z++){
+                for (int x = 0; x <= (sizeX-1) /32; x++){
+                    Location newLoc = new Location(lowerCorner.getWorld(), lowerCorner.getBlockX() + x * 32, lowerCorner.getBlockY() + y * 32, lowerCorner.getBlockZ() + z * 32);
+                    int newSizeX = Math.min(32, sizeX - (newLoc.getBlockX() - lowerCorner.getBlockX()));
+                    int newSizeY = Math.min(32, sizeY - (newLoc.getBlockY() - lowerCorner.getBlockY()));
+                    int newSizeZ = Math.min(32, sizeZ - (newLoc.getBlockZ() - lowerCorner.getBlockZ()));
+
+                    StructureBlockLibApi.INSTANCE
+                            .saveStructure(plugin)
+                            .includeEntities(true)
+                            .at(newLoc)
+                            .sizeX(newSizeX)
+                            .sizeY(newSizeY)
+                            .sizeZ(newSizeZ)
+                            .saveToWorld(customPlayer.getFirst_pos().getWorld().getName(), MauricePlugin.getInstance().getName(), settings.getName() + counter)
+                            .onException(e -> plugin.getLogger().log(Level.SEVERE, "Failed to save structure.", e))
+                            .onResult(e -> plugin.getLogger().log(Level.INFO, ChatColor.GREEN + "Saved structure " + settings.getName()));
+                    settings.setStruct(settings.getName() + counter, Settings.getSerializedLocation(newLoc));
+                    counter++;
+                }
+            }
+        }
+    }
+
+    public void loadStruct(){
+        Plugin plugin = MauricePlugin.getInstance();
+
+        ArrayList<StructData> structPos = settings.getStructPos();
+
+        for (StructData sd : structPos){
+            Location loc = Settings.getDeserializedLocation(sd.getPos());
+            StructureBlockLibApi.INSTANCE
+                    .loadStructure(plugin)
+                    .includeEntities(true)
+                    .at(loc)
+                    .loadFromWorld(loc.getWorld().getName(), MauricePlugin.getInstance().getName(), sd.getName())
+                    .onException(e -> plugin.getLogger().log(Level.SEVERE, "Failed to load structure.", e))
+                    .onResult(e -> plugin.getLogger().log(Level.INFO, ChatColor.GREEN + "Loaded structure " + sd.getName() + " at " + loc));
+        }
+    }
+
+    private Location LowerCorner(Location pos1, Location pos2){
+        double posX, posY, posZ;
+        posX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        posY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        posZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+        return new Location(pos1.getWorld(), posX, posY, posZ);
     }
 
     public void setSettings(Settings settings) {

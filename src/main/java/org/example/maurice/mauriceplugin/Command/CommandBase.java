@@ -1,6 +1,9 @@
 package org.example.maurice.mauriceplugin.Command;
 
-import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.lucko.commodore.Commodore;
+import me.lucko.commodore.CommodoreProvider;
+import me.lucko.commodore.file.CommodoreFileReader;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,19 +12,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.SimplePluginManager;
+import org.example.maurice.mauriceplugin.MauricePlugin;
 import org.example.maurice.mauriceplugin.MsgSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
-import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
-import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public abstract class CommandBase extends BukkitCommand implements CommandExecutor {
     private final int minArgument;
@@ -59,6 +59,17 @@ public abstract class CommandBase extends BukkitCommand implements CommandExecut
         if(commandMap != null){
             commandMap.register(command, this);
         }
+
+        // get a commodore instance
+        Commodore commodore = CommodoreProvider.getCommodore(MauricePlugin.getInstance());
+
+        LiteralCommandNode<?> timeCommand = null;
+        try {
+            timeCommand = CommodoreFileReader.INSTANCE.parse(MauricePlugin.getInstance().getResource("hidenseek.commodore"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        commodore.register(this, timeCommand);
     }
 
     public CommandMap getCommandMap() {
